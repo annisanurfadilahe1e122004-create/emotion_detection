@@ -135,8 +135,9 @@ def load_emotion_model(url: str, filename: str):
             st.info(f"Mengunduh model dari cloud. Ini mungkin butuh waktu beberapa menit.")
             
             # Melakukan permintaan unduhan
+            # ... (kode unduhan tetap sama)
             response = requests.get(url, stream=True)
-            response.raise_for_status() # Cek jika unduhan berhasil
+            response.raise_for_status() 
             
             # Menyimpan file yang diunduh secara lokal
             with open(filename, "wb") as f:
@@ -145,20 +146,22 @@ def load_emotion_model(url: str, filename: str):
 
         # Setelah diunduh (atau jika sudah ada), model dimuat
         try:
-            # Karena model dilatih dengan arsitektur yang dikustomisasi, kita perlu membangun arsitektur dulu
-            if "ResNet50" in filename: 
-                 model = build_fer_model()
-                 model.load_weights(filename)
-            else:
-                 model = load_model(filename)
+            # HILANGKAN KONDISI YANG SALAH. KITA HANYA GUNAKAN SATU CARA:
+            # 1. Bangun arsitektur (ResNet50 + custom layers)
+            model = build_fer_model() 
+            
+            # 2. Muat hanya weights ke dalam arsitektur yang sudah dibangun
+            # Ini adalah cara yang benar untuk model transfer learning Anda.
+            model.load_weights(filename)
 
             return model, None
         
         except Exception as e:
-            return None, f"Gagal memuat model Keras: {str(e)}"
+            # Ganti pesan error menjadi lebih spesifik untuk membantu debugging jika masih gagal
+            return None, f"Gagal memuat arsitektur Keras/ResNet50: Pastikan file model yang diunduh adalah file 'weights only' yang valid. Error: {str(e)}"
             
     except requests.exceptions.RequestException as e:
-        return None, f"Gagal mengunduh model. Pastikan **MODEL_URL** menggunakan format direct download Google Drive yang benar (gunakan format 'uc?export=download...'). Error: {str(e)}"
+        return None, f"Gagal mengunduh model: Cek kembali MODEL_URL Hugging Face. Error: {str(e)}"
     except Exception as e:
         return None, str(e)
 
