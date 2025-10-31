@@ -16,7 +16,7 @@ from tensorflow.keras import layers, models
 # -------------------------
 # PERBAIKAN KRUSIAL: Mengubah link sharing menjadi link direct download Google Drive
 # File ID: 1nfiNR6XWVPzpNYHTXnL4lMR3PjnGPSx1
-MODEL_URL = "https://drive.google.com/uc?export=download&id=1nfiNR6XWVPzpNYHTXnL4lMR3PjnGPSx1" 
+MODEL_URL = "https://drive.google.com/u/0/uc?id=1nfiNR6XWVPzpNYHTXnL4lMR3PjnGPSx1&export=download" 
 MODEL_DEFAULT_PATH = "facial_emotion_recognition_model.h5"
 EMOTIONS = ['Anger', 'Contempt', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprised']
 TARGET_FPS = 30
