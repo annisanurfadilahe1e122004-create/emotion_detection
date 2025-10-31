@@ -135,9 +135,8 @@ def load_emotion_model(url: str, filename: str):
             st.info(f"Mengunduh model dari cloud. Ini mungkin butuh waktu beberapa menit.")
             
             # Melakukan permintaan unduhan
-            # ... (kode unduhan tetap sama)
             response = requests.get(url, stream=True)
-            response.raise_for_status() 
+            response.raise_for_status()
             
             # Menyimpan file yang diunduh secara lokal
             with open(filename, "wb") as f:
@@ -145,20 +144,31 @@ def load_emotion_model(url: str, filename: str):
             st.success("✅ Model berhasil diunduh!")
 
         # Setelah diunduh (atau jika sudah ada), model dimuat
+        model = None
+        
+        # --- PERCOBAAN 1: Muat sebagai model LENGKAP (Full Model) ---
         try:
-            # HILANGKAN KONDISI YANG SALAH. KITA HANYA GUNAKAN SATU CARA:
-            # 1. Bangun arsitektur (ResNet50 + custom layers)
-            model = build_fer_model() 
-            
-            # 2. Muat hanya weights ke dalam arsitektur yang sudah dibangun
-            # Ini adalah cara yang benar untuk model transfer learning Anda.
-            model.load_weights(filename)
-
+            # Menggunakan compile=False sangat penting untuk menghindari masalah optimizer antar-lingkungan
+            st.info("🔄 Mencoba memuat model Keras sebagai Model Utuh (load_model)...")
+            from tensorflow.keras.models import load_model # Panggil lagi untuk memastikan scope
+            model = load_model(filename, compile=False) 
+            st.success("✅ Model Utuh berhasil dimuat!")
             return model, None
         
-        except Exception as e:
-            # Ganti pesan error menjadi lebih spesifik untuk membantu debugging jika masih gagal
-            return None, f"Gagal memuat arsitektur Keras/ResNet50: Pastikan file model yang diunduh adalah file 'weights only' yang valid. Error: {str(e)}"
+        except Exception as e_full:
+            st.warning(f"⚠️ Muat Model Utuh Gagal. Error: {str(e_full)}. Mencoba muat sebagai Weights Only...")
+            
+            # --- PERCOBAAN 2 (Fallback): Muat sebagai Weights Only ---
+            try:
+                model = build_fer_model()
+                model.load_weights(filename)
+                st.success("✅ Model Weights Only berhasil dimuat!")
+                return model, None
+            
+            except Exception as e_weights:
+                # Jika kedua cara gagal, kembalikan pesan error yang lebih jelas
+                final_error = f"Model gagal dimuat. (1) Model Utuh Error: {str(e_full)}. (2) Weights Only Error: {str(e_weights)}"
+                return None, final_error
             
     except requests.exceptions.RequestException as e:
         return None, f"Gagal mengunduh model: Cek kembali MODEL_URL Hugging Face. Error: {str(e)}"
