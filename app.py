@@ -165,7 +165,7 @@ def load_emotion_model(url: str, filename: str):
 # -------------------------
 # Face Detection
 # -------------------------
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 def detect_faces(image, scale_factor, min_neighbors, min_size):
     """Detect faces with optimized parameters"""
